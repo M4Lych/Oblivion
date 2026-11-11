@@ -76,12 +76,15 @@ jobs:
           printf 'APK metadata: %s\n' "$package_line"
           printf 'APK size: %s bytes\n' "$(stat -c '%s' "$apk")"
           sha256sum "$apk"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk" >/dev/null
-          echo "Verified non-empty, structurally valid Debug APK signed by Gradle's default debug certificate; no release key is used."
-      - name: Upload Debug APK for manual testing
+          if "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk" >/dev/null 2>&1; then
+            echo "::error::Expected an unsigned Debug APK; refusing to upload a signed artifact."
+            exit 1
+          fi
+          echo "Verified non-empty, structurally valid, unsigned Debug APK."
+      - name: Upload unsigned Debug APK for manual testing
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: oblivion-debug-${{ github.sha }}
+          name: oblivion-unsigned-debug-${{ github.sha }}
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
@@ -123,8 +126,11 @@ jobs:
           printf 'APK metadata: %s\n' "$package_line"
           printf 'APK size: %s bytes\n' "$(stat -c '%s' "$apk")"
           sha256sum "$apk"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk" >/dev/null
-          echo "Verified non-empty experimental Debug APK signed by Gradle's default debug certificate; no release key is used. It does not contain or run Minecraft."
+          if "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk" >/dev/null 2>&1; then
+            echo "::error::Expected an unsigned experimental Debug APK; refusing to upload a signed artifact."
+            exit 1
+          fi
+          echo "Verified non-empty, unsigned experimental probe APK. It does not contain or run Minecraft."
       - name: Upload experimental probe Debug APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
