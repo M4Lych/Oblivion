@@ -38,7 +38,7 @@ data class HostCompatibilityReport(
         appendLine("OpenGL ES level reported by device: ${reportedGlEsVersion ?: "not reported"}")
         appendLine()
         if (installed) {
-            appendLine("Minecraft package: $MCBE_PACKAGE")
+            appendLine("Minecraft package: ${HostCompatibilityProbe.MCBE_PACKAGE}")
             appendLine("Version: ${packageVersion ?: "unknown"} (${packageVersionCode ?: "unknown"})")
             appendLine("Installer package: ${installerPackage ?: "not reported"} (informational only; not ownership verification)")
             appendLine("Split APK count reported by PackageManager: $splitCount")

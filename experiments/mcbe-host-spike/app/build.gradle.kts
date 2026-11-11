@@ -17,12 +17,6 @@ android {
         versionName = "0.1.0-spike"
     }
 
-    buildTypes {
-        getByName("debug") {
-            signingConfig = null
-        }
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
