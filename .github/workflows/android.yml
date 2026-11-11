@@ -54,6 +54,11 @@ jobs:
             gradle/libs.versions.toml
       - name: Set up Android SDK
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          # The action defaults to the obsolete SDK package "tools". Modern
+          # command-line tools are installed by the action itself; install only
+          # platform-tools here, then pin the required packages below.
+          packages: "platform-tools"
       - name: Install Android SDK packages
         run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;35.0.0"
       - name: Verify formatting and compile, lint, and test
@@ -102,6 +107,8 @@ jobs:
             gradle/libs.versions.toml
       - name: Set up Android SDK
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          packages: "platform-tools"
       - name: Install Android SDK packages
         run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;35.0.0"
       - name: Lint, test, and assemble isolated probe
