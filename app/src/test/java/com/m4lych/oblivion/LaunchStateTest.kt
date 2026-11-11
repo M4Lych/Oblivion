@@ -14,6 +14,10 @@ class LaunchStateTest {
         assertEquals(LaunchPhase.INTERRUPTED, restoreLaunchPhaseAfterProcessDeath(LaunchPhase.EXTERNAL_FALLBACK_STARTING))
     }
 
+    @Test fun dispatchedFallbackIsNotRestoredAsRunningGameplay() {
+        assertEquals(LaunchPhase.INTERRUPTED, restoreLaunchPhaseAfterProcessDeath(LaunchPhase.EXTERNAL_FALLBACK_DISPATCHED))
+    }
+
     @Test fun terminalUnavailableStateRemainsVisibleAfterRecreation() {
         assertEquals(LaunchPhase.IN_CLIENT_UNAVAILABLE, restoreLaunchPhaseAfterProcessDeath(LaunchPhase.IN_CLIENT_UNAVAILABLE))
     }

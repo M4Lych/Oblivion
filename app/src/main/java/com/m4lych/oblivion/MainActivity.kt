@@ -43,6 +43,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -340,16 +341,26 @@ private fun PlayScreen() {
     val owner = LocalLifecycleOwner.current
     LaunchedEffect(Unit) { launchManager.requestInClientLaunch() }
     androidx.compose.runtime.DisposableEffect(owner, launchManager) {
-        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_RESUME) launchManager.onHostResumed() }
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> launchManager.onHostPaused()
+                Lifecycle.Event.ON_RESUME -> launchManager.onHostResumed()
+                else -> Unit
+            }
+        }
         owner.lifecycle.addObserver(observer)
         onDispose { owner.lifecycle.removeObserver(observer) }
     }
+
+    val fallbackBusy = state.phase == LaunchPhase.EXTERNAL_FALLBACK_STARTING ||
+        state.phase == LaunchPhase.EXTERNAL_FALLBACK_DISPATCHED
 
     ScreenColumn("Play", "Oblivion checks whether it can host Bedrock gameplay. An external app handoff is shown separately as a compatibility fallback.") {
         InfoCard(when (state.phase) {
             LaunchPhase.PREPARING_IN_CLIENT -> "CHECKING IN-CLIENT SUPPORT"
             LaunchPhase.IN_CLIENT_UNAVAILABLE -> "IN-CLIENT GAMEPLAY UNAVAILABLE"
             LaunchPhase.EXTERNAL_FALLBACK_STARTING -> "OPENING SEPARATE APP"
+            LaunchPhase.EXTERNAL_FALLBACK_DISPATCHED -> "HANDOFF REQUESTED"
             LaunchPhase.EXTERNAL_FALLBACK_RETURNED -> "RETURNED TO OBLIVION"
             LaunchPhase.FAILED -> "LAUNCH CHECK FAILED"
             LaunchPhase.INTERRUPTED -> "LAUNCH FLOW INTERRUPTED"
@@ -357,14 +368,30 @@ private fun PlayScreen() {
         }) {
             Text(state.message.ifBlank { "Checking the configured in-client runtime provider." }, color = Silver, fontSize = 13.sp, lineHeight = 19.sp)
             if (state.phase == LaunchPhase.PREPARING_IN_CLIENT) Text("Checking…", color = PaleGold, fontSize = 12.sp)
+            if (fallbackBusy) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = PaleGold)
+                    Text("  Waiting for Android to switch apps…", color = PaleGold, fontSize = 12.sp)
+                }
+            }
         }
-        if (state.phase == LaunchPhase.IN_CLIENT_UNAVAILABLE || state.phase == LaunchPhase.FAILED || state.phase == LaunchPhase.INTERRUPTED) {
+        if (state.phase == LaunchPhase.IN_CLIENT_UNAVAILABLE ||
+            state.phase == LaunchPhase.INTERRUPTED ||
+            (state.phase == LaunchPhase.FAILED && !state.canRetryExternalFallback)
+        ) {
             Button(onClick = { launchManager.requestInClientLaunch() }, colors = ButtonDefaults.buttonColors(containerColor = Teal)) { Text("Retry in-client check") }
         }
         InfoCard("OPTIONAL COMPATIBILITY FALLBACK") {
             Text("This opens the official Minecraft app as a separate Android app. It does not host gameplay inside Oblivion or let Oblivion control the running session.", color = Muted, fontSize = 12.sp, lineHeight = 18.sp)
-            OutlinedButton(onClick = { launchManager.openExternalCompatibilityFallback() }) {
-                Text(if (state.gameInstalled) "Open Minecraft separately" else "Find Minecraft on Google Play")
+            OutlinedButton(onClick = { launchManager.openExternalCompatibilityFallback() }, enabled = !fallbackBusy) {
+                Text(
+                    when {
+                        fallbackBusy -> "Launching Minecraft separately…"
+                        state.canRetryExternalFallback -> "Retry opening Minecraft separately"
+                        state.gameInstalled -> "Open Minecraft separately"
+                        else -> "Find Minecraft on Google Play"
+                    }
+                )
             }
         }
         InfoCard("WHAT WOULD ENABLE HOSTING") {
