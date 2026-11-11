@@ -1,0 +1,31 @@
+name = "oblivion-api"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "oblivion"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "REPORTS"
+bucket_name = "oblivion-private-reports"
+
+[[ratelimits]]
+name = "API_LIMITER"
+namespace_id = "1001"
+simple = { limit = 60, period = 60 }
+
+[vars]
+API_ISSUER = "oblivion-api"
+API_AUDIENCE = "oblivion-android"
+DISCORD_REDIRECT_URI = "https://api.example.invalid/api/discord/oauth/callback"
+OBLIVION_CALLBACK_URI = "oblivion://auth/discord"
+DISCORD_GUILD_ID = ""
+DISCORD_ROLE_MAP_JSON = "{}"
+OWNER_DISCORD_USER_ID = ""
+OWNER_USER_ID = ""
+CURSEFORGE_ENABLED = "false"
+ALLOWED_ORIGINS = ""

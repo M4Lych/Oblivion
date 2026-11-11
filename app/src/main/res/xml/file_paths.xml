@@ -1,0 +1,5 @@
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <files-path name="diagnostics" path="diagnostics/" />
+    <files-path name="worlds" path="worlds/" />
+    <files-path name="skins" path="skins/" />
+</paths>
