@@ -31,14 +31,6 @@ android {
         buildConfigField("String", "OBLIVION_API_BASE_URL", "\"$escapedApiBaseUrl\"")
     }
 
-    // Build artifacts are intentionally unsigned. A tester can sign a local copy with a
-    // private test key before installation; no signing key is stored or used by CI.
-    buildTypes {
-        getByName("debug") {
-            signingConfig = null
-        }
-    }
-
     buildFeatures { compose = true; buildConfig = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
