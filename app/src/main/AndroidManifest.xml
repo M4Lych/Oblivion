@@ -20,6 +20,11 @@
                 <data android:scheme="oblivion" android:host="auth" android:path="/discord" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".engine.OblivionGameActivity"
+            android:exported="false"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"

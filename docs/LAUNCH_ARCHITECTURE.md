@@ -44,3 +44,7 @@ To pursue a real host implementation, the maintainers need a documented and auth
 ## Current evidence
 
 Source inspection and unit tests can verify state transitions, safe interruption, and UI fallback labels. This environment has no Java/Android SDK or attached device, so the Android build and real game launch have not been verified here. No claim of in-client gameplay is made.
+
+## Experimental native loader scaffold
+
+The app now includes a non-exported `OblivionGameActivity` and a small JNI/CMake loader diagnostic. It checks only for explicitly staged files in Oblivion's private `files/mcpe_env` directory and attempts to map `libminecraftpe.so` after optionally mapping staged `libc++_shared.so` and `libfmod.so`. It does not copy files from Minecraft's package, change linker namespaces, invoke an engine entry point, create a rendering surface, or provide lifecycle/input integration. A missing or rejected library is reported as failure. A successful `dlopen` is reported only as library mapping, never as gameplay. The production `GameLaunchManager` still uses `UnconfiguredGameHost`; this experimental Activity is not wired to Play.
